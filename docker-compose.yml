@@ -1,0 +1,103 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: hybridsearch-postgres
+    environment:
+      POSTGRES_DB: hybridsearch
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - hybridsearch-network
+
+  # Elasticsearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: hybridsearch-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - hybridsearch-network
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: hybridsearch-redis
+    command: redis-server --requirepass password
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - hybridsearch-network
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: hybridsearch-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - hybridsearch-network
+
+  # MinIO
+  minio:
+    image: minio/minio:RELEASE.2024-01-16T16-07-38Z
+    container_name: hybridsearch-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - hybridsearch-network
+
+  # Application (開發階段可選)
+  app:
+    build: .
+    container_name: hybridsearch-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - elasticsearch
+      - redis
+      - rabbitmq
+      - minio
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - hybridsearch-network
+
+volumes:
+  postgres_data:
+  elasticsearch_data:
+  redis_data:
+  rabbitmq_data:
+  minio_data:
+
+networks:
+  hybridsearch-network:
+    driver: bridge

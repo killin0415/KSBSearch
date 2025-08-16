@@ -1,0 +1,103 @@
+server:
+  port: 8877
+
+spring:
+  application:
+    name: hybrid-search-es
+
+  # R2DBC PostgreSQL Configuration
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/hybridsearch
+    username: postgres
+    password: password
+    pool:
+      initial-size: 10
+      max-size: 50
+      max-idle-time: 30m
+      validation-query: SELECT 1
+
+  # Elasticsearch Configuration
+  elasticsearch:
+    uris: http://localhost:9200
+    username: elastic
+    password: password
+    connection-timeout: 10s
+    socket-timeout: 30s
+
+  # Redis Configuration
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: password
+      database: 0
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+
+  # RabbitMQ Configuration
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    listener:
+      simple:
+        concurrency: 5
+        max-concurrency: 10
+        retry:
+          enabled: true
+          initial-interval: 1000ms
+          max-attempts: 3
+
+  # Cache Configuration
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000 # 10 minutes
+      cache-null-values: false
+
+# MinIO Configuration
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: hybridsearch-exports
+
+# Application Specific Configuration
+app:
+  search:
+    max-results: 10000
+    default-page-size: 20
+    max-page-size: 100
+  export:
+    max-file-size: 1GB
+    compression-level: 6
+    temp-dir: /tmp/exports
+
+# Logging Configuration
+logging:
+  level:
+    com.hybridsearch: DEBUG
+    org.springframework.data.elasticsearch: DEBUG
+    reactor.netty: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Management/Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true

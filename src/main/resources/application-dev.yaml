@@ -1,0 +1,106 @@
+server:
+  port: 8877
+
+spring:
+  # R2DBC PostgreSQL Configuration - Development
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/hybridsearch_dev
+    username: postgres
+    password: dev_password
+    pool:
+      initial-size: 5
+      max-size: 20
+      max-idle-time: 30m
+      validation-query: SELECT 1
+
+  # Elasticsearch Configuration - Development
+  elasticsearch:
+    uris: http://localhost:9200
+    username: elastic
+    password: dev_password
+    connection-timeout: 10s
+    socket-timeout: 30s
+
+  # Redis Configuration - Development
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: dev_password
+      database: 1  # 使用不同的 database
+      lettuce:
+        pool:
+          max-active: 4
+          max-idle: 4
+          min-idle: 0
+          max-wait: -1ms
+
+  # RabbitMQ Configuration - Development
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /dev
+    listener:
+      simple:
+        concurrency: 3
+        max-concurrency: 5
+        retry:
+          enabled: true
+          initial-interval: 1000ms
+          max-attempts: 3
+
+  # Cache Configuration - Development
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000 # 5 minutes (shorter for dev)
+      cache-null-values: false
+
+# MinIO Configuration - Development
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: hybridsearch-dev
+
+# Application Specific Configuration - Development
+app:
+  search:
+    max-results: 1000  # 較小的限制用於開發
+    default-page-size: 10
+    max-page-size: 50
+  export:
+    max-file-size: 100MB  # 較小的檔案大小
+    compression-level: 1  # 較快的壓縮
+    temp-dir: ./temp/exports  # 本地目錄
+
+# Logging Configuration - Development
+logging:
+  level:
+    com.hybridsearch: DEBUG
+    org.springframework.data.elasticsearch: DEBUG
+    org.springframework.data.r2dbc: DEBUG
+    reactor.netty: DEBUG
+    org.springframework.cache: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: ./logs/hybrid-search-dev.log
+
+# Management/Actuator Configuration - Development
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # 開發環境暴露所有端點
+  endpoint:
+    health:
+      show-details: always
+    env:
+      show-values: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true

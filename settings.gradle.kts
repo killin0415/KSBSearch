@@ -1,1 +1,2 @@
-rootProject.name = "KSBSearch"
+rootProject.name = "hybrid-search-es"
+
