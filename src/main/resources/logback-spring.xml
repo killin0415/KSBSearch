@@ -67,8 +67,13 @@
         <appender-ref ref="FILE"/>
     </appender>
 
-    <!-- 開發環境配置 -->
+    <!-- 默認配置 - 防止 No appenders present 警告 -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
 
+    <!-- 開發環境配置 -->
     <springProfile name="dev,local">
         <root level="DEBUG">
             <appender-ref ref="CONSOLE"/>
@@ -96,8 +101,6 @@
     </springProfile>
 
     <!-- 測試環境配置 -->
-
-
     <springProfile name="test">
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
@@ -114,7 +117,6 @@
     </springProfile>
 
     <!-- 生產環境配置 -->
-
     <springProfile name="prod,production">
         <root level="INFO">
             <appender-ref ref="ASYNC_FILE"/>
@@ -145,11 +147,9 @@
 
         <!-- 安全相關日誌 -->
         <logger name="org.springframework.security" level="WARN"/>
-        <logger name="ROOT" level="ERROR"/>
     </springProfile>
 
     <!-- Kubernetes 環境配置 -->
-
     <springProfile name="kubernetes,k8s">
         <!-- 只輸出到控制台，由 K8s 收集日誌 -->
         <root level="INFO">

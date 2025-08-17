@@ -10,4 +10,8 @@ import java.util.*
 
 interface FinewebDataRepository : ReactiveCrudRepository<FinewebData, UUID> {
 
+    @Query("""
+       SELECT * FROM fineweb_data LIMIT :limit OFFSET :offset
+    """)
+    fun easyFilter(limit: Int, offset: Long): Flux<FinewebData>
 }

@@ -1,0 +1,71 @@
+# k8s/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hybridsearch-config
+  namespace: hybridsearch
+data:
+  application.yml: |
+    server:
+      port: 8080
+    spring:
+      application:
+        name: hybrid-search-es
+      r2dbc:
+        url: r2dbc:postgresql://postgres-service:5432/hybridsearch
+        username: postgres
+        password: ${POSTGRES_PASSWORD}
+        pool:
+          initial-size: 10
+          max-size: 50
+          max-idle-time: 30m
+      elasticsearch:
+        uris: http://elasticsearch-service:9200
+        username: elastic
+        password: ${ELASTICSEARCH_PASSWORD}
+      data:
+        redis:
+          host: redis-service
+          port: 6379
+          password: ${REDIS_PASSWORD}
+          database: 0
+      rabbitmq:
+        host: rabbitmq-service
+        port: 5672
+        username: guest
+        password: ${RABBITMQ_PASSWORD}
+        virtual-host: /
+      cache:
+        type: redis
+        redis:
+          time-to-live: 600000
+    minio:
+      endpoint: http://minio-service:9000
+      access-key: ${MINIO_ACCESS_KEY}
+      secret-key: ${MINIO_SECRET_KEY}
+      bucket-name: hybridsearch-exports
+    app:
+      search:
+        max-results: 10000
+        default-page-size: 20
+        max-page-size: 100
+      export:
+        max-file-size: 1GB
+        compression-level: 6
+        temp-dir: /tmp/exports
+    logging:
+      level:
+        com.hybridsearch: INFO
+        org.springframework.data.elasticsearch: WARN
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health,info,metrics,prometheus
+      endpoint:
+        health:
+          show-details: always
+      metrics:
+        export:
+          prometheus:
+            enabled: true

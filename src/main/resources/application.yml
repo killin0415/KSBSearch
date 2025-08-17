@@ -1,11 +1,14 @@
 server:
-  port: 8877
+  port: 8080
 
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
   application:
     name: hybrid-search-es
 
-  # R2DBC PostgreSQL Configuration
+  # 基本配置 - 會被環境特定配置覆蓋
   r2dbc:
     url: r2dbc:postgresql://localhost:5432/hybridsearch
     username: postgres
@@ -16,7 +19,6 @@ spring:
       max-idle-time: 30m
       validation-query: SELECT 1
 
-  # Elasticsearch Configuration
   elasticsearch:
     uris: http://localhost:9200
     username: elastic
@@ -24,7 +26,6 @@ spring:
     connection-timeout: 10s
     socket-timeout: 30s
 
-  # Redis Configuration
   data:
     redis:
       host: localhost
@@ -38,7 +39,6 @@ spring:
           min-idle: 0
           max-wait: -1ms
 
-  # RabbitMQ Configuration
   rabbitmq:
     host: localhost
     port: 5672
@@ -54,7 +54,6 @@ spring:
           initial-interval: 1000ms
           max-attempts: 3
 
-  # Cache Configuration
   cache:
     type: redis
     redis:
@@ -79,19 +78,23 @@ app:
     compression-level: 6
     temp-dir: /tmp/exports
 
-# Logging Configuration
+# Logging Configuration - 簡化，主要由 logback-spring.xml 控制
 logging:
+  config: classpath:logback-spring.xml
   level:
-    com.hybridsearch: DEBUG
-    org.springframework.data.elasticsearch: DEBUG
-    reactor.netty: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    root: INFO
 
 # Management/Actuator Configuration
 management:
   endpoints:
     web:
+      cors:
+        allowed-methods: "GET POST PUT DELETE OPTIONS"
+        allowed-headers: '*'
+        allow-credentials: true
+        allowed-origins:
+          - "http://localhost:3000"  # 前端開發環境
+          - "http://localhost:8080"  # 其他可能的前端端點
       exposure:
         include: health,info,metrics,prometheus
   endpoint:

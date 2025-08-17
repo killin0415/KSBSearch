@@ -46,7 +46,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 
     // MinIO/S3
-    implementation("io.minio:minio:8.5.7")
+    implementation("io.minio:minio:8.5.17")
     implementation("software.amazon.awssdk:s3:2.21.29")
 
     // Monitoring

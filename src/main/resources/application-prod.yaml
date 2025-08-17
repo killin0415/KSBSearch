@@ -1,10 +1,13 @@
 server:
-  port: 8877
+  port: 8080
   tomcat:
     max-threads: 200
     min-spare-threads: 10
 
 spring:
+  application:
+    name: hybrid-search-es
+
   # R2DBC PostgreSQL Configuration - Production
   r2dbc:
     url: r2dbc:postgresql://${DB_HOST:postgres-service}:${DB_PORT:5432}/${DB_NAME:hybridsearch}
@@ -84,27 +87,23 @@ app:
     compression-level: 6
     temp-dir: /app/temp/exports
 
-# Logging Configuration - Production
+# Logging Configuration - Production (簡化，主要由 logback-spring.xml 控制)
 logging:
+  config: classpath:logback-spring.xml
   level:
-    com.hybridsearch: INFO
-    org.springframework.data.elasticsearch: WARN
-    org.springframework.data.r2dbc: WARN
-    reactor.netty: WARN
-    org.springframework.cache: WARN
-    root: WARN
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{36} - %msg%n"
-  file:
-    name: /app/logs/hybrid-search-prod.log
-    max-size: 100MB
-    max-history: 30
-    total-size-cap: 3GB
+    root: INFO
 
 # Management/Actuator Configuration - Production
 management:
   endpoints:
     web:
+      cors:
+        allowed-methods: "GET POST PUT DELETE OPTIONS"
+        allowed-headers: '*'
+        allow-credentials: true
+        allowed-origins:
+          - "http://localhost:3000"  # 前端開發環境
+          - "http://localhost:8080"  # 其他可能的前端端點
       exposure:
         include: health,info,metrics,prometheus
       base-path: /actuator
@@ -122,26 +121,7 @@ management:
     metrics:
       export:
         enabled: true
-        step: 60s
 
-# Security Configuration - Production
+# 安全配置 - Production
 security:
   require-ssl: true
-  headers:
-    frame-options: DENY
-    content-type-options: nosniff
-    xss-protection: 1; mode=block
-
-# JVM and Performance Tuning - Production
-spring:
-  jmx:
-    enabled: true
-  task:
-    execution:
-      pool:
-        core-size: 10
-        max-size: 50
-        queue-capacity: 100
-    scheduling:
-      pool:
-        size: 5

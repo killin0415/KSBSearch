@@ -5,7 +5,6 @@ import org.springframework.data.elasticsearch.annotations.Document
 import org.springframework.data.elasticsearch.annotations.Field
 import org.springframework.data.elasticsearch.annotations.FieldType
 import org.springframework.data.relational.core.mapping.Table
-import java.time.LocalDateTime
 import java.util.*
 
 @Table("fineweb_data")
