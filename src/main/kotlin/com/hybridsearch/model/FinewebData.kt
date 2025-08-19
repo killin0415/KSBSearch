@@ -12,9 +12,9 @@ import java.util.*
 data class FinewebData(
     @Id
     @Field(type = FieldType.Keyword)
-    val id: UUID = UUID.randomUUID(),
+    val id: UUID,
 
-    @Field(type = FieldType.Text, analyzer = "standard")
+    @Field(type = FieldType.Text, analyzer = "ik_max_word", searchAnalyzer = "ik_smart")
     val text: String,
 
     @Field(type = FieldType.Object)

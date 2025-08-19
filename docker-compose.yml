@@ -19,6 +19,9 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
     container_name: hybridsearch-elasticsearch
+    build:
+      - context: ./dockerConfig/ElasticSearch
+        dockerfile: Dockerfile
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -28,6 +31,7 @@ services:
       - "9300:9300"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
+      - elasticsearch_config:/usr/share/elasticsearch/config
     networks:
       - hybridsearch-network
 
