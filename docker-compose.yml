@@ -20,7 +20,7 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
     container_name: hybridsearch-elasticsearch
     build:
-      - context: ./dockerConfig/ElasticSearch
+        context: ./dockerConfig/ElasticSearch
         dockerfile: Dockerfile
     environment:
       - discovery.type=single-node
@@ -101,6 +101,7 @@ volumes:
   redis_data:
   rabbitmq_data:
   minio_data:
+  elasticsearch_config:
 
 networks:
   hybridsearch-network:

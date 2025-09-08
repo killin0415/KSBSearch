@@ -59,7 +59,7 @@ class SearchController(
     @GetMapping("/export/{taskId}/status")
     suspend fun getExportStatus(@PathVariable taskId: String): ResponseEntity<ExportTask> {
         val task = exportService.getTaskStatus(taskId)
-        return if (task != null) {
+        return if (task != null) { 
             ResponseEntity.ok(task)
         } else {
             ResponseEntity.notFound().build()

@@ -19,7 +19,5 @@ data class FinewebData(
 
     @Field(type = FieldType.Object)
     val metadata: Map<String, Any>?,
-
-
 )
 
